@@ -103,7 +103,7 @@ type User struct {
 }
 
 func (t *trackerClient) Myself() (*User, *resty.Response, error) {
-	req := t.NewRequest(resty.MethodPost, "/v2/myself", nil)
+	req := t.NewRequest(resty.MethodGet, "/v2/myself", nil)
 	result := new(User)
 	resp, err := t.Do(req, result)
 	if err != nil {
