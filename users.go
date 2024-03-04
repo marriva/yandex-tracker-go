@@ -1,8 +1,6 @@
 package tracker
 
 import (
-	"fmt"
-
 	"github.com/go-resty/resty/v2"
 )
 
@@ -109,7 +107,7 @@ func (t *trackerClient) Myself() (*User, *resty.Response, error) {
 	result := new(User)
 	resp, err := t.Do(req, result)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get user info: %w", err)
+		return nil, nil, err
 	}
 	return result, resp, nil
 }
