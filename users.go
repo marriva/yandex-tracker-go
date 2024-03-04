@@ -1,9 +1,9 @@
 package tracker
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
+
+	"github.com/go-resty/resty/v2"
 )
 
 type BasicUsers []BasicUser
@@ -104,21 +104,12 @@ type User struct {
 	WelcomeMailSent bool `json:"welcomeMailSent"`
 }
 
-func (t *trackerClient) Myself() (*User, error) {
-	request := t.client.R().SetHeaders(t.headers)
-	resp, err := request.Get(baseUrl + "/v2/myself")
-	if err != nil {
-		return nil, fmt.Errorf("request: %w", err)
-	}
-
-	if resp.StatusCode() != http.StatusOK {
-		return nil, fmt.Errorf("wrong status code: %d, message=%s, headers=%s", resp.StatusCode(), string(resp.Body()), t.headers)
-	}
-
+func (t *trackerClient) Myself() (*User, *resty.Response, error) {
+	req := t.NewRequest(resty.MethodPost, "/v2/myself", nil)
 	result := new(User)
-	if err := json.Unmarshal(resp.Body(), result); err != nil {
-		return nil, fmt.Errorf("json.Unmarshal: %w", err)
+	resp, err := t.Do(req, result)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to get user info: %w", err)
 	}
-
-	return result, nil
+	return result, resp, nil
 }

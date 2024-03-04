@@ -26,7 +26,7 @@ type Client interface {
 	// GetTicketComments - get Yandex.Tracker ticket comments by ticket key
 	GetTicketComments(ticketKey string) (comments TicketComments, err error)
 	// Myself - get information about the current Yandex.Tracker user
-	Myself() (user *User, err error)
+	Myself() (user *User, response *resty.Response, err error)
 	// CreateIssue - create Yandex.Tracker issue
 	CreateIssue(opts *CreateIssueOptions) (issue *Issue, response *resty.Response, err error)
 	// FindIssues - search Yandex.Tracker issues
@@ -83,13 +83,17 @@ func (t *trackerClient) NewRequest(method, path string, opt interface{}) *resty.
 func (t *trackerClient) Do(req *resty.Request, v interface{}) (*resty.Response, error) {
 	resp, err := req.Send()
 	if err != nil {
-		return nil, fmt.Errorf("request: %w", err)
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	if resp.IsError() {
-		return nil, fmt.Errorf("wrong status code: %d, message=%s, headers=%s", resp.StatusCode(), string(resp.Body()), t.headers)
+		result := new(Error)
+		if err := json.Unmarshal(resp.Body(), result); err != nil {
+			return nil, fmt.Errorf("failed to parse response error: %w", err)
+		}
+		return nil, fmt.Errorf("request failed: %w", result)
 	}
 	if err := json.Unmarshal(resp.Body(), v); err != nil {
-		return nil, fmt.Errorf("json.Unmarshal: %w", err)
+		return nil, fmt.Errorf("failed to parse response body: %w", err)
 	}
 	return resp, nil
 }

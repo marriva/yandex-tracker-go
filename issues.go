@@ -177,7 +177,7 @@ func (t *trackerClient) CreateIssue(opts *CreateIssueOptions) (*Issue, *resty.Re
 	result := new(Issue)
 	resp, err := t.Do(req, result)
 	if err != nil {
-		return nil, nil, fmt.Errorf("request: %w", err)
+		return nil, nil, fmt.Errorf("failed to create issue: %w", err)
 	}
 	return result, resp, nil
 }
@@ -196,7 +196,7 @@ func (t *trackerClient) FindIssues(opts *FindIssuesOptions, listOpts *ListOption
 	var result []*Issue
 	resp, err := t.Do(req, &result)
 	if err != nil {
-		return nil, nil, fmt.Errorf("request: %w", err)
+		return nil, nil, fmt.Errorf("failed to find issues: %w", err)
 	}
 
 	return result, resp, nil
@@ -207,7 +207,7 @@ func (t *trackerClient) GetIssue(issueKey string) (*Issue, *resty.Response, erro
 	result := new(Issue)
 	resp, err := t.Do(req, result)
 	if err != nil {
-		return nil, nil, fmt.Errorf("request: %w", err)
+		return nil, nil, fmt.Errorf("failed to get issue: %w", err)
 	}
 
 	return result, resp, err
